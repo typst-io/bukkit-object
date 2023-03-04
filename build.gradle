@@ -1,0 +1,82 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
+    id 'kr.entree.spigradle.base' version '2.4.3'
+}
+
+group 'io.typecraft'
+version '0.1.0'
+
+repositories {
+    mavenCentral()
+    spigotmc()
+}
+
+dependencies {
+    compileOnly spigot('1.19.3')
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testImplementation spigot('1.19.3')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testCompileOnly 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        bukkitObject(MavenPublication) {
+            from components.java
+            pom {
+                name.set("${project.group}:${project.name}")
+                description.set("A simple object-yaml-mapping for Bukkit.")
+                url.set("https://github.com/typecraft-io/bukkit-object")
+                licenses {
+                    license {
+                        name.set("The GNU General Public License, Version 3.0")
+                        url.set("https://www.gnu.org/licenses/gpl-3.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("entrypointkr")
+                        name.set("Junhyung Im")
+                        email.set("entrypointkr@gmail.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/typecraft-io/bukkit-object.git")
+                    developerConnection.set("scm:git:ssh://github.com:typecraft-io/bukkit-object.git")
+                    url.set("https://github.com/typecraft-io/bukkit-object/tree/master")
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "sonatypeReleases"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = findProperty("ossrhUsername")?.toString()
+                password = findProperty("ossrhPassword")?.toString()
+            }
+        }
+        maven {
+            name = "sonatypeSnapshots"
+            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            credentials {
+                username = findProperty("ossrhUsername")?.toString()
+                password = findProperty("ossrhPassword")?.toString()
+            }
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["bukkitObject"])
+}

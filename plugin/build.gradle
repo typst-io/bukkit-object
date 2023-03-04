@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'kr.entree.spigradle'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+repositories {
+    mavenCentral()
+}
+
+group rootProject.name
+version rootProject.version
+
+dependencies {
+    compileOnly spigot('1.19.3')
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    compileOnly 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+    implementation rootProject
+}
+
+spigot {
+    name 'ObjectPlugin'
+    commands {
+        create('bobject')
+    }
+    apiVersion '1.19'
+    excludeLibraries '*'
+}
+
+assemble.dependsOn(shadowJar)
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
