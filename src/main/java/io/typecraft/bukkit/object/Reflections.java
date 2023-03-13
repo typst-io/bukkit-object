@@ -3,6 +3,8 @@ package io.typecraft.bukkit.object;
 import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -30,7 +32,7 @@ class Reflections {
             Class<?>[] paramTypes = new Class[params.length];
             Object[] paramValues = new Object[params.length];
             for (int i = 0; i < paramValues.length; i++) {
-                paramTypes[i] = params[i].getFieldType();
+                paramTypes[i] = params[i].getFieldType().getJavaClass();
                 paramValues[i] = params[i].getFieldValue();
             }
             Method method = instance.getClass().getMethod(methodName, paramTypes);
@@ -50,5 +52,15 @@ class Reflections {
         } catch (ClassNotFoundException e) {
             return Optional.empty();
         }
+    }
+
+    public static Optional<Class<?>> getRawTypeClass(Type type) {
+        if (type instanceof Class) {
+            return Optional.of(((Class<?>) type));
+        }
+        if (type instanceof ParameterizedType) {
+            return Optional.ofNullable(((Class<?>) ((ParameterizedType) type).getRawType()));
+        }
+        return Optional.empty();
     }
 }

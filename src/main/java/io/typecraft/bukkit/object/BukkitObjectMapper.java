@@ -5,14 +5,15 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BukkitObjectMapper {
-    private final Map<Class<?>, ClassDef> classDefMap = new HashMap<>();
+    private final Map<String, ObjectDef> objectDefMap = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> encode(Object x) {
@@ -22,15 +23,14 @@ public class BukkitObjectMapper {
                 : Collections.emptyMap();
     }
 
-    @SuppressWarnings("unchecked")
     public <A> Optional<A> decode(Map<String, Object> xs, Class<A> clazz) {
         return ConfigurationSerializable.class.isAssignableFrom(clazz)
                 ? decodeBukkitObject(xs).flatMap(a -> clazz.isInstance(a) ? Optional.of(clazz.cast(a)) : Optional.empty())
-                : decodeJacksonObject(xs, clazz);
+                : decodeLombokObject(xs, clazz);
     }
 
-    private <A> Optional<A> decodeJacksonObject(Map<String, Object> xs, Class<A> clazz) {
-        ClassDef def = classDefMap.computeIfAbsent(clazz, k -> ClassDef.from(clazz));
+    private <A> Optional<A> decodeLombokObject(Map<String, Object> xs, Class<A> clazz) {
+        ObjectDef def = objectDefMap.computeIfAbsent(clazz.getTypeName(), k -> ObjectDef.from(clazz));
         if (def.isEmpty()) {
             return Optional.empty();
         }
@@ -39,22 +39,13 @@ public class BukkitObjectMapper {
             constructor.setAccessible(true);
             Object builderInstance = constructor.newInstance();
             for (FieldDef field : def.getFields()) {
-                Object value = xs.get(field.getName());
-                if (value == null) {
+                Object x = xs.get(field.getName());
+                if (x == null) {
                     continue;
                 }
-                if (value instanceof ConfigurationSection) {
-                    value = ((ConfigurationSection) value).getValues(false);
-                }
-                ClassDef fieldClassDef = classDefMap.getOrDefault(field.getFieldType(), ClassDef.empty);
-                if (fieldClassDef.isEmpty()) {
-                    FieldValue fieldValue = FieldValue.of(field.getFieldType(), value);
-                    Reflections.invokeMethod(builderInstance, field.getName(), fieldValue);
-                } else {
-                    Object subValue = decode((Map<String, Object>) value, fieldClassDef.getClassType()).orElse(null);
-                    FieldValue subFieldValue = FieldValue.of(fieldClassDef.getClassType(), subValue);
-                    Reflections.invokeMethod(builderInstance, field.getName(), subFieldValue);
-                }
+                Object subValue = decodeObject(x, field.getFieldType());
+                FieldValue subFieldValue = FieldValue.of(field.getFieldType(), subValue);
+                Reflections.invokeMethod(builderInstance, field.getName(), subFieldValue);
             }
             Object value = Reflections.invokeMethod(builderInstance, "build").orElse(null);
             return clazz.isInstance(value)
@@ -63,6 +54,54 @@ public class BukkitObjectMapper {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    private Object decodeObject(Object x, TypeDef typeDef) {
+        if (x instanceof ConfigurationSection && !ConfigurationSection.class.isAssignableFrom(typeDef.getJavaClass())) {
+            x = ((ConfigurationSection) x).getValues(false);
+        }
+        // for non typed
+        Class<?> valueClass = typeDef.getJavaClass();
+        ObjectDef objectDef = objectDefMap.computeIfAbsent(
+                valueClass.getTypeName(),
+                k -> ObjectDef.from(valueClass)
+        );
+        if (!objectDef.isEmpty()) {
+            return decode(
+                    (Map<String, Object>) x,
+                    objectDef.getObjectType().getJavaClass()
+            ).orElse(null);
+        }
+        List<TypeDef> typeParams = typeDef.getTypeParameters();
+        if (x instanceof Map) {
+            TypeDef kType = typeParams.size() >= 1 ? typeParams.get(0) : TypeDef.object;
+            TypeDef vType = typeParams.size() >= 2 ? typeParams.get(1) : TypeDef.object;
+            return ((Map<?, ?>) x).entrySet().stream()
+                    .map(pair -> new SimpleEntry<>(
+                            decodeObject(pair.getKey(), kType),
+                            decodeObject(pair.getValue(), vType)
+                    ))
+                    .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        } else if (x instanceof Collection) {
+            TypeDef vType = typeParams.size() >= 1 ? typeParams.get(0) : TypeDef.object;
+            Collector<Object, ?, ? extends Collection<Object>> collector = Set.class.isAssignableFrom(typeDef.getJavaClass())
+                    ? Collectors.toSet()
+                    : Collectors.toList();
+            return ((Collection<?>) x).stream()
+                    .map(a -> decodeObject(a, vType))
+                    .collect(collector);
+        } else if (valueClass == UUID.class) {
+            return UUID.fromString(x.toString());
+        } else if (valueClass == Map.class && x instanceof ConfigurationSection) {
+            return ((ConfigurationSection) x).getValues(false);
+        } else if (Enum.class.isAssignableFrom(valueClass)) {
+            try {
+                return Enum.valueOf((Class<Enum>) valueClass, x.toString());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return x;
     }
 
     private Optional<ConfigurationSerializable> decodeBukkitObject(Map<String, Object> xs) {
@@ -80,20 +119,26 @@ public class BukkitObjectMapper {
         }
         if (x instanceof Map) {
             return ((Map<?, ?>) x).entrySet().stream()
-                    .map(pair -> new SimpleEntry<>(pair.getKey(), encodeObject(pair.getValue())))
+                    .map(pair -> new SimpleEntry<>(pair.getKey().toString(), encodeObject(pair.getValue())))
                     .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
         }
-        return encodeJacksonObject(x);
+        return encodeLombokObject(x);
     }
 
-    private Object encodeJacksonObject(Object x) {
+    private Object encodeLombokObject(Object x) {
         // primitive
-        if (Reflections.checkPrimitive(x.getClass())) {
+        if (Reflections.checkPrimitive(x.getClass()) || x instanceof ConfigurationSection) {
             return x;
+        }
+        // custom types - save
+        if (x instanceof UUID) {
+            return x.toString();
+        } else if (x instanceof Enum) {
+            return ((Enum<?>) x).name();
         }
         // object
         Class<?> clazz = x.getClass();
-        ClassDef info = classDefMap.computeIfAbsent(clazz, k -> ClassDef.from(clazz));
+        ObjectDef info = objectDefMap.computeIfAbsent(clazz.getTypeName(), k -> ObjectDef.from(clazz));
         if (info.getFields().isEmpty()) {
             return Collections.emptyMap();
         }

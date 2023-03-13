@@ -3,9 +3,10 @@ package io.typecraft.bukkit.object;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.Map;
+
 @Value
 @Builder
-public class MySubData {
-    String name;
-    int number;
+public class MyMapData {
+    Map<MyEnum, String> map;
 }
