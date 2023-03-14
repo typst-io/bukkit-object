@@ -80,3 +80,11 @@ publishing {
 signing {
     sign(publishing.publications["bukkitObject"])
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
