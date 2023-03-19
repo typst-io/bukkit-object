@@ -16,4 +16,5 @@ public class MyData {
     MyEnum myEnum;
     Map<MyEnum, MyMapData> myEnumMap;
     MySubData subData;
+    Map<Integer, MySubData> intMap;
 }

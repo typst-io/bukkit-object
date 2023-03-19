@@ -8,9 +8,9 @@ import java.lang.reflect.Constructor;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BukkitObjectMapper {
     private final Map<String, ObjectDef> objectDefMap = new HashMap<>();
@@ -61,10 +61,10 @@ public class BukkitObjectMapper {
             x = ((ConfigurationSection) x).getValues(false);
         }
         // for non typed
-        Class<?> valueClass = typeDef.getJavaClass();
+        Class<?> fieldClass = typeDef.getJavaClass();
         ObjectDef objectDef = objectDefMap.computeIfAbsent(
-                valueClass.getTypeName(),
-                k -> ObjectDef.from(valueClass)
+                fieldClass.getTypeName(),
+                k -> ObjectDef.from(fieldClass)
         );
         if (!objectDef.isEmpty()) {
             return decode(
@@ -90,18 +90,19 @@ public class BukkitObjectMapper {
             return ((Collection<?>) x).stream()
                     .map(a -> decodeObject(a, vType))
                     .collect(collector);
-        } else if (valueClass == UUID.class) {
+        } else if (fieldClass == UUID.class) {
             return UUID.fromString(x.toString());
-        } else if (valueClass == Map.class && x instanceof ConfigurationSection) {
+        } else if (fieldClass == Map.class && x instanceof ConfigurationSection) {
             return ((ConfigurationSection) x).getValues(false);
-        } else if (Enum.class.isAssignableFrom(valueClass)) {
+        } else if (Enum.class.isAssignableFrom(fieldClass)) {
             try {
-                return Enum.valueOf((Class<Enum>) valueClass, x.toString());
+                return Enum.valueOf((Class<Enum>) fieldClass, x.toString());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        return x;
+        Function<String, Optional<Object>> parser = Reflections.parserByPrimitives.get(fieldClass);
+        return parser != null ? parser.apply(x.toString()).orElse(null) : x;
     }
 
     private Optional<ConfigurationSerializable> decodeBukkitObject(Map<String, Object> xs) {

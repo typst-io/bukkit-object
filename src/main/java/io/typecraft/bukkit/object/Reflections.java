@@ -5,26 +5,40 @@ import lombok.experimental.UtilityClass;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Function;
 
 @UtilityClass
 class Reflections {
-    private static final Set<Class<?>> primitiveClasses = getPrimitiveClasses();
+    public static final Map<Class<?>, Function<String, Optional<Object>>> parserByPrimitives = getParsersByPrimitive();
 
-    private static Set<Class<?>> getPrimitiveClasses() {
-        Set<Class<?>> ret = new HashSet<>();
-        ret.add(Integer.class);
-        ret.add(Long.class);
-        ret.add(Double.class);
-        ret.add(Float.class);
-        ret.add(Boolean.class);
-        ret.add(Character.class);
-        ret.add(Byte.class);
-        ret.add(Short.class);
-        ret.add(String.class);
-        return ret;
+    private static Map<Class<?>, Function<String, Optional<Object>>> getParsersByPrimitive() {
+        Map<Class<?>, Function<String, Optional<Object>>> map = new HashMap<>();
+        map.put(Integer.class, parseF(Integer::parseInt));
+        map.put(Long.class, parseF(Long::parseLong));
+        map.put(Double.class, parseF(Double::parseDouble));
+        map.put(Float.class, parseF(Float::parseFloat));
+        map.put(Boolean.class, parseF(Boolean::parseBoolean));
+        map.put(Character.class, parseF(s -> s.charAt(0)));
+        map.put(Byte.class, parseF(Byte::parseByte));
+        map.put(Short.class, parseF(Short::parseShort));
+        map.put(String.class, parseF(s -> s));
+        return map;
+    }
+
+    private static <A> Optional<A> parseO(String s, Function<String, A> f) {
+        try {
+            return Optional.ofNullable(f.apply(s));
+        } catch (Exception ex) {
+            // ignored
+        }
+        return Optional.empty();
+    }
+
+    private static <A> Function<String, Optional<A>> parseF(Function<String, A> f) {
+        return s -> parseO(s, f);
     }
 
     public static Optional<Object> invokeMethod(Object instance, String methodName, FieldValue... params) {
@@ -43,7 +57,7 @@ class Reflections {
     }
 
     public static boolean checkPrimitive(Class<?> clazz) {
-        return clazz.isPrimitive() || primitiveClasses.contains(clazz);
+        return clazz.isPrimitive() || parserByPrimitives.containsKey(clazz);
     }
 
     public static Optional<Class<?>> findClass(String name) {

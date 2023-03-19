@@ -22,7 +22,10 @@ public class BukkitObjectMapperTest {
         mapB.put(MyEnum.B, "b");
         myEnumMap.put(MyEnum.A, MyMapData.builder().map(mapA).build());
         myEnumMap.put(MyEnum.B, MyMapData.builder().map(mapB).build());
-        MyData source = new MyData(UUID.randomUUID(), "test", MyEnum.B, myEnumMap, new MySubData("sub", 1));
+        Map<Integer, MySubData> intMap = new HashMap<>();
+        intMap.put(1, new MySubData("a", 1));
+        intMap.put(2, new MySubData("b", 2));
+        MyData source = new MyData(UUID.randomUUID(), "test", MyEnum.B, myEnumMap, new MySubData("sub", 1), intMap);
         Map<String, Object> serialized = mapper.encode(source);
         System.out.println(serialized);
         MyData deserialized = mapper.decode(serialized, MyData.class).orElse(null);
