@@ -56,6 +56,7 @@ public class BukkitObjectMapper {
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private Object decodeObject(Object x, TypeDef typeDef) {
         if (x instanceof ConfigurationSection && !ConfigurationSection.class.isAssignableFrom(typeDef.getJavaClass())) {
             x = ((ConfigurationSection) x).getValues(false);
