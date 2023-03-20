@@ -3,7 +3,13 @@
 ## Setup
 
 ```groovy
-implementation 'io.typecraft:bukkit-object:0.2.0'
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.typecraft:bukkit-object:0.2.1'
+}
 ```
 
 
