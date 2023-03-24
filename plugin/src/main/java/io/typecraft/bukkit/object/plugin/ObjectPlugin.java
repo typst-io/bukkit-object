@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 public class ObjectPlugin extends JavaPlugin {
@@ -31,7 +32,7 @@ public class ObjectPlugin extends JavaPlugin {
         if (head.equalsIgnoreCase("save")) {
             ItemStack handItem = p.getInventory().getItemInMainHand();
             YamlConfiguration config = new YamlConfiguration();
-            Map<String, Object> encoded = mapper.encode(new MyData(p.getName(), handItem));
+            Map<String, Object> encoded = mapper.encode(new MyData(p.getName(), handItem)).getOrElse(Collections.emptyMap());
             encoded.forEach(config::set);
             try {
                 config.save(new File(getDataFolder(), "config.yml"));
@@ -40,7 +41,7 @@ public class ObjectPlugin extends JavaPlugin {
             }
         } else if (head.equalsIgnoreCase("load")) {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
-            MyData myData = mapper.decode(config.getValues(false), MyData.class).orElse(null);
+            MyData myData = mapper.decode(config.getValues(false), MyData.class).getOrElse(null);
             if (myData != null) {
                 sender.sendMessage("Author: " + myData.getName());
                 p.getInventory().addItem(myData.getItem());

@@ -3,8 +3,10 @@ package io.typecraft.bukkit.object;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,4 +19,7 @@ public class MyData {
     Map<MyEnum, MyMapData> myEnumMap;
     MySubData subData;
     Map<Integer, MySubData> intMap;
+    LocalDateTime localDateTime;
+    LocalDate localDate;
+    LocalTime localTime;
 }

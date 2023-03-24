@@ -5,6 +5,7 @@ import lombok.experimental.UtilityClass;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -52,7 +53,7 @@ class Reflections {
             Method method = instance.getClass().getMethod(methodName, paramTypes);
             return Optional.ofNullable(method.invoke(instance, paramValues));
         } catch (Exception ex) {
-            throw new IllegalStateException(ex);
+            throw new IllegalStateException(String.format("%s, %s, %s", instance.getClass().getName(), methodName, Arrays.toString(params)), ex);
         }
     }
 
