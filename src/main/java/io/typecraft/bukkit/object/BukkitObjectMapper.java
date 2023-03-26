@@ -5,6 +5,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import java.lang.reflect.Constructor;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -132,6 +133,8 @@ public class BukkitObjectMapper {
             return Result.success(LocalDate.parse(x.toString()));
         } else if (fieldClass == LocalTime.class) {
             return Result.success(LocalTime.parse(x.toString()));
+        } else if (fieldClass == Duration.class) {
+            return Result.success(Duration.parse(x.toString()));
         }
         Function<String, Optional<Object>> parser = Reflections.parserByPrimitives.get(fieldClass);
         Object finalX = x;
@@ -191,7 +194,8 @@ public class BukkitObjectMapper {
             return Result.success(((Enum<?>) x).name());
         } else if (x instanceof LocalDateTime ||
                 x instanceof LocalDate ||
-                x instanceof LocalTime) {
+                x instanceof LocalTime ||
+                x instanceof Duration) {
             return Result.success(x.toString());
         }
         // object
