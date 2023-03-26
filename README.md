@@ -26,14 +26,14 @@ class MyPlugin extends JavaPlugin {
     public void onEnable() {
         // load
         YamlConfiguration config = YamlConfiguration.loadConfiguration(getConfigFile());
-        myData = mapper.decode(config.getValues(false), MyData.class);
+        myData = mapper.decode(config.getValues(false), MyData.class).getOrThrow();
     }
 
     @Override
     public void onDisable() {
         // save
         YamlConfiguration config = new YamlConfiguration();
-        mapper.encode(myData).forEach(config::set);
+        mapper.encode(myData).getOrThrow().forEach(config::set);
         config.save(file);
     }
 
