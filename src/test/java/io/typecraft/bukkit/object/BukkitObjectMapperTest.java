@@ -10,10 +10,7 @@ import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BukkitObjectMapperTest {
     @Test
@@ -38,7 +35,8 @@ public class BukkitObjectMapperTest {
                 intMap,
                 LocalDateTime.now(),
                 LocalDate.now(),
-                LocalTime.now()
+                LocalTime.now(),
+                new HashSet<>(Collections.singletonList(UUID.randomUUID()))
         );
         Map<String, Object> serialized = mapper.encode(source).getOrThrow();
         System.out.println(serialized);
@@ -62,7 +60,8 @@ public class BukkitObjectMapperTest {
                         "sub",
                         new MyBukkitSubSubData("grandSub", 1)
                 ),
-                section
+                section,
+                new HashSet<>(Collections.singletonList(UUID.randomUUID()))
         );
         Map<String, Object> serialized = mapper.encode(source).getOrElse(Collections.emptyMap());
         YamlConfiguration configSave = new YamlConfiguration();

@@ -3,6 +3,7 @@ package io.typecraft.bukkit.object;
 import lombok.Value;
 import lombok.With;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,14 +29,18 @@ public class ObjectDef {
             return ObjectDef.empty;
         }
         Set<FieldDef> fields = new HashSet<>();
-        for (Method method : clazz.getDeclaredMethods()) {
-            String name = method.getName();
-            if (name.startsWith("get") && name.length() >= 4) {
-                String fieldName = Character.toLowerCase(name.charAt(3)) + name.substring(4);
-                TypeDef fieldType = TypeDef.from(method.getGenericReturnType()).orElse(null);
-                if (fieldType != null) {
-                    fields.add(FieldDef.of(fieldName, fieldType, name));
-                }
+        for (Field field : clazz.getDeclaredFields()) {
+            String fieldName = field.getName();
+            String methodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+            Method method = null;
+            try {
+                method = clazz.getMethod(methodName);
+            } catch (NoSuchMethodException e) {
+                // Ignore
+            }
+            TypeDef fieldType = method != null ? TypeDef.from(method.getGenericReturnType()).orElse(null) : null;
+            if (fieldType != null) {
+                fields.add(FieldDef.of(fieldName, fieldType, methodName));
             }
         }
         return new ObjectDef(fields, objectType, builderclass);

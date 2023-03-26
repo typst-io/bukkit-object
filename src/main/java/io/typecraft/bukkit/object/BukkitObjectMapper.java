@@ -158,7 +158,7 @@ public class BukkitObjectMapper {
                 Result<Object> result = encodeObject(a);
                 Throwable failure = result.getFailure().orElse(null);
                 if (failure == null) {
-                    ret.add(a);
+                    ret.add(result.get());
                 } else {
                     return Result.failure(failure);
                 }
