@@ -1,4 +1,4 @@
-package io.typecraft.bukkit.object;
+package io.typst.bukkit.object;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 public class BukkitObjectMapper {
+    // TODO: async?
     private final Map<String, ObjectDef> objectDefMap = new HashMap<>();
 
     @SuppressWarnings("unchecked")

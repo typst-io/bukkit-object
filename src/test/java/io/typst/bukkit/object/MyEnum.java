@@ -1,4 +1,4 @@
-package io.typecraft.bukkit.object;
+package io.typst.bukkit.object;
 
 public enum MyEnum {
     A,

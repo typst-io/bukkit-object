@@ -1,6 +1,6 @@
-package io.typecraft.bukkit.object.plugin;
+package io.typst.bukkit.object.plugin;
 
-import io.typecraft.bukkit.object.BukkitObjectMapper;
+import io.typst.bukkit.object.BukkitObjectMapper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;

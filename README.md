@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.typecraft:bukkit-object:0.4.1'
+    implementation 'io.typst:bukkit-object:1.0.0'
 }
 ```
 

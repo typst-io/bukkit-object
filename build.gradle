@@ -5,8 +5,8 @@ plugins {
     id 'kr.entree.spigradle.base' version '2.4.3'
 }
 
-group 'io.typecraft'
-version '0.4.1'
+group 'io.typst'
+version '1.0.0'
 
 repositories {
     mavenCentral()
@@ -35,7 +35,7 @@ publishing {
             pom {
                 name.set("${project.group}:${project.name}")
                 description.set("A simple object-yaml-mapping for Bukkit.")
-                url.set("https://github.com/typecraft-io/bukkit-object")
+                url.set("https://github.com/typst-io/bukkit-object")
                 licenses {
                     license {
                         name.set("The GNU General Public License, Version 3.0")
@@ -50,9 +50,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/typecraft-io/bukkit-object.git")
-                    developerConnection.set("scm:git:ssh://github.com:typecraft-io/bukkit-object.git")
-                    url.set("https://github.com/typecraft-io/bukkit-object/tree/master")
+                    connection.set("scm:git:git://github.com/typst-io/bukkit-object.git")
+                    developerConnection.set("scm:git:ssh://github.com:typst-io/bukkit-object.git")
+                    url.set("https://github.com/typst-io/bukkit-object/tree/master")
                 }
             }
         }

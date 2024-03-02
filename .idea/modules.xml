@@ -7,6 +7,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bukkit-object.test.iml" filepath="$PROJECT_DIR$/.idea/modules/bukkit-object.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.typecraft.bukkit-object.main.iml" filepath="$PROJECT_DIR$/.idea/modules/io.typecraft.bukkit-object.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/io.typecraft.bukkit-object.test.iml" filepath="$PROJECT_DIR$/.idea/modules/io.typecraft.bukkit-object.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java.bukkit-object.main.iml" filepath="$PROJECT_DIR$/.idea/modules/java.bukkit-object.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java.bukkit-object.test.iml" filepath="$PROJECT_DIR$/.idea/modules/java.bukkit-object.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/plugin/plugin.bukkit-object.bukkit-object-plugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/plugin/plugin.bukkit-object.bukkit-object-plugin.main.iml" />
     </modules>
   </component>
 </project>

@@ -1,7 +1,5 @@
-package io.typecraft.bukkit.object;
+package io.typst.bukkit.object;
 
-import io.typecraft.bukkit.object.MyData;
-import io.typecraft.bukkit.object.MySubData;
 import lombok.Value;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;

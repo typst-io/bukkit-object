@@ -1,4 +1,4 @@
-package io.typecraft.bukkit.object;
+package io.typst.bukkit.object;
 
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

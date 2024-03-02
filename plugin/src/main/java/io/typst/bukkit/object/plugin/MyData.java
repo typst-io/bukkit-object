@@ -1,4 +1,4 @@
-package io.typecraft.bukkit.object.plugin;
+package io.typst.bukkit.object.plugin;
 
 import lombok.Builder;
 import lombok.Data;
