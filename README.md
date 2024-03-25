@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.typst:bukkit-object:1.0.0'
+    implementation 'io.typst:bukkit-object:1.0.1'
 }
 ```
 

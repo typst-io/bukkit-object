@@ -87,7 +87,7 @@ public class BukkitObjectMapper {
             TypeDef kType = typeParams.size() >= 1 ? typeParams.get(0) : TypeDef.object;
             TypeDef vType = typeParams.size() >= 2 ? typeParams.get(1) : TypeDef.object;
             Map<?, ?> xs = (Map<?, ?>) x;
-            Map<Object, Object> ret = new HashMap<>(xs.size());
+            Map<Object, Object> ret = new LinkedHashMap<>(xs.size());
             for (Entry<?, ?> pair : xs.entrySet()) {
                 Result<Object> keyResult = decodeObject(pair.getKey(), kType);
                 Result<Object> valueResult = decodeObject(pair.getValue(), vType);
@@ -168,7 +168,7 @@ public class BukkitObjectMapper {
         }
         if (x instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) x;
-            Map<String, Object> ret = new HashMap<>(map.size());
+            Map<String, Object> ret = new LinkedHashMap<>(map.size());
             for (Entry<?, ?> pair : map.entrySet()) {
                 Result<Object> result = encodeObject(pair.getValue());
                 Throwable failure = result.getFailure().orElse(null);
@@ -205,7 +205,7 @@ public class BukkitObjectMapper {
         if (info.getFields().isEmpty()) {
             return Result.failure(new IllegalArgumentException("Unknown object: " + x.getClass().getName()));
         }
-        Map<String, Object> ret = new HashMap<>();
+        Map<String, Object> ret = new LinkedHashMap<>();
         for (FieldDef field : info.getFields()) {
             Object value = Reflections.invokeMethod(x, field.getGetterName()).orElse(null);
             if (value == null) {
@@ -224,7 +224,7 @@ public class BukkitObjectMapper {
 
     private Result<Map<String, Object>> encodeBukkitObject(ConfigurationSerializable x) {
         Map<String, Object> serialized = x.serialize();
-        Map<String, Object> ret = new HashMap<>(serialized.size());
+        Map<String, Object> ret = new LinkedHashMap<>(serialized.size());
         for (Entry<String, Object> pair : serialized.entrySet()) {
             Result<Object> result = encodeObject(pair.getValue());
             Throwable failure = result.getFailure().orElse(null);
