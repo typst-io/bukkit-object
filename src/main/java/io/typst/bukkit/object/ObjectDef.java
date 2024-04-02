@@ -31,7 +31,8 @@ public class ObjectDef {
         Set<FieldDef> fields = new HashSet<>();
         for (Field field : clazz.getDeclaredFields()) {
             String fieldName = field.getName();
-            String methodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+            String methodPrefix = field.getType().equals(Boolean.TYPE) ? "is" : "get";
+            String methodName = methodPrefix + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
             Method method = null;
             try {
                 method = clazz.getMethod(methodName);
